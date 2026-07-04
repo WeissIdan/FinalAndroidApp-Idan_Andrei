@@ -145,6 +145,11 @@ public class SpeedTestManager {
             byte[] dummyData = new byte[1024 * 1024 * 10];
             new Random().nextBytes(dummyData);
 
+            // Without this, HttpURLConnection buffers the whole body in memory and only
+            // actually sends it over the network once getResponseCode() is called below,
+            // so the write loop finishes instantly and progress never has real time to sample.
+            connection.setFixedLengthStreamingMode(dummyData.length);
+
             long startTime = System.currentTimeMillis();
             OutputStream output = connection.getOutputStream();
             
