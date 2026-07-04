@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase;
 /**
  * The Room Database class that serves as the main access point to the persisted data.
  */
-@Database(entities = {SpeedTestResult.class}, version = 1)
+@Database(entities = {SpeedTestResult.class, AppSettings.class}, version = 2)
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase instance;
 

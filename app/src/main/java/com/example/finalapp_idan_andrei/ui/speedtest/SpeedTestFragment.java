@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import com.example.finalapp_idan_andrei.databinding.FragmentSpeedTestBinding;
 
 import com.example.finalapp_idan_andrei.logic.AppDatabase;
+import com.example.finalapp_idan_andrei.logic.AppSettings;
 import com.example.finalapp_idan_andrei.logic.SpeedTestManager;
 import com.example.finalapp_idan_andrei.logic.SpeedTestResult;
 import java.util.Locale;
@@ -30,56 +31,88 @@ public class SpeedTestFragment extends Fragment {
         binding = FragmentSpeedTestBinding.inflate(inflater, container, false);
         speedTestManager = new SpeedTestManager();
 
+        loadSettings();
         binding.btnStart.setOnClickListener(v -> startSpeedTest());
 
         return binding.getRoot();
+    }
+
+    private void loadSettings() {
+        new Thread(() -> {
+            AppSettings settings = AppDatabase.getInstance(requireContext()).speedTestDao().getSettings();
+            if (settings == null) settings = new AppSettings();
+            
+            final String unit = settings.isUseMegabytes() ? "MB/s" : "Mbps";
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (binding != null) {
+                        binding.unitLabel.setText(unit);
+                    }
+                });
+            }
+        }).start();
     }
 
     private void startSpeedTest() {
         binding.btnStart.setEnabled(false);
         binding.btnStart.setText("TESTING...");
 
-        speedTestManager.startTest(new SpeedTestManager.SpeedTestListener() {
-            @Override
-            public void onPingResult(long pingMs, double jitterMs) {
-                if (binding == null) return;
-                lastPing = pingMs;
-                binding.pingText.setText(pingMs + " ms");
+        new Thread(() -> {
+            AppSettings settings = AppDatabase.getInstance(requireContext()).speedTestDao().getSettings();
+            if (settings == null) {
+                settings = new AppSettings(); // Use defaults
             }
+            final AppSettings finalSettings = settings;
 
-            @Override
-            public void onDownloadProgress(double mbps) {
-                updateSpeedDisplay(mbps);
-            }
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    if (binding != null) {
+                        binding.unitLabel.setText(finalSettings.isUseMegabytes() ? "MB/s" : "Mbps");
+                    }
+                    speedTestManager.startTest(finalSettings, new SpeedTestManager.SpeedTestListener() {
+                        @Override
+                        public void onPingResult(long pingMs, double jitterMs) {
+                            if (binding == null) return;
+                            lastPing = pingMs;
+                            binding.pingText.setText(pingMs + " ms");
+                        }
 
-            @Override
-            public void onDownloadFinished(double finalMbps) {
-                if (binding == null) return;
-                lastDownload = finalMbps;
-                binding.downloadText.setText(String.format(Locale.getDefault(), "%.1f", finalMbps));
-            }
+                        @Override
+                        public void onDownloadProgress(double val) {
+                            updateSpeedDisplay(val);
+                        }
 
-            @Override
-            public void onUploadProgress(double mbps) {
-                updateSpeedDisplay(mbps);
-            }
+                        @Override
+                        public void onDownloadFinished(double finalVal) {
+                            if (binding == null) return;
+                            lastDownload = finalVal;
+                            binding.downloadText.setText(String.format(Locale.getDefault(), "%.1f", finalVal));
+                        }
 
-            @Override
-            public void onUploadFinished(double finalMbps) {
-                saveResult(lastPing, lastDownload, finalMbps);
-                if (binding == null) return;
-                binding.uploadText.setText(String.format(Locale.getDefault(), "%.1f", finalMbps));
-                binding.btnStart.setEnabled(true);
-                binding.btnStart.setText("START TEST");
-            }
+                        @Override
+                        public void onUploadProgress(double val) {
+                            updateSpeedDisplay(val);
+                        }
 
-            @Override
-            public void onError(String message) {
-                if (binding == null) return;
-                binding.btnStart.setEnabled(true);
-                binding.btnStart.setText("START TEST");
+                        @Override
+                        public void onUploadFinished(double finalVal) {
+                            saveResult(lastPing, lastDownload, finalVal);
+                            if (binding == null) return;
+                            binding.uploadText.setText(String.format(Locale.getDefault(), "%.1f", finalVal));
+                            binding.btnStart.setEnabled(true);
+                            binding.btnStart.setText("START TEST");
+                        }
+
+                        @Override
+                        public void onError(String message) {
+                            if (binding == null) return;
+                            binding.btnStart.setEnabled(true);
+                            binding.btnStart.setText("START TEST");
+                        }
+                    });
+                });
             }
-        });
+        }).start();
     }
 
     private void updateSpeedDisplay(double mbps) {
