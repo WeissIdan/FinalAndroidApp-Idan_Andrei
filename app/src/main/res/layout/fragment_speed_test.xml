@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ambient_dark_blue"
+    android:padding="16dp">
+
+    <!-- Header Stats -->
+    <LinearLayout
+        android:id="@+id/statsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/card_background"
+            android:gravity="center"
+            android:padding="12dp"
+            android:layout_marginEnd="4dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PING"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+            <TextView
+                android:id="@+id/pingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/card_background"
+            android:gravity="center"
+            android:padding="12dp"
+            android:layout_marginHorizontal="4dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DOWNLOAD"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+            <TextView
+                android:id="@+id/downloadText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/card_background"
+            android:gravity="center"
+            android:padding="12dp"
+            android:layout_marginStart="4dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="UPLOAD"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+            <TextView
+                android:id="@+id/uploadText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Main Gauge Area -->
+    <FrameLayout
+        android:id="@+id/gaugeContainer"
+        android:layout_width="280dp"
+        android:layout_height="280dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnStart"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/statsContainer">
+
+        <ProgressBar
+            android:id="@+id/speedProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:indeterminate="false"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@android:drawable/progress_horizontal"
+            android:visibility="invisible"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/mainSpeedValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.0"
+                android:textColor="@color/white"
+                android:textSize="64sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/unitLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mbps"
+                android:textColor="@color/text_secondary"
+                android:textSize="18sp" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Start Button -->
+    <Button
+        android:id="@+id/btnStart"
+        android:layout_width="200dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/button_background"
+        android:text="START TEST"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:backgroundTint="@null"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
