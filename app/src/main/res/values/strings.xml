@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">FinalApp_Idan_Andrei</string>
+    <string name="title_speed_test">Speed Test</string>
+    <string name="title_history">History</string>
+    <string name="title_settings">Settings</string>
+    <string name="history_empty_state">No speed tests yet.\nRun one from the Speed Test tab.</string>
 </resources>
