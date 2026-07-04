@@ -42,6 +42,7 @@ public class SpeedTestFragment extends Fragment {
         speedTestManager.startTest(new SpeedTestManager.SpeedTestListener() {
             @Override
             public void onPingResult(long pingMs, double jitterMs) {
+                if (binding == null) return;
                 lastPing = pingMs;
                 binding.pingText.setText(pingMs + " ms");
             }
@@ -53,6 +54,7 @@ public class SpeedTestFragment extends Fragment {
 
             @Override
             public void onDownloadFinished(double finalMbps) {
+                if (binding == null) return;
                 lastDownload = finalMbps;
                 binding.downloadText.setText(String.format(Locale.getDefault(), "%.1f", finalMbps));
             }
@@ -64,14 +66,16 @@ public class SpeedTestFragment extends Fragment {
 
             @Override
             public void onUploadFinished(double finalMbps) {
-                binding.uploadText.setText(String.format(Locale.getDefault(), "%.1f", finalMbps));
                 saveResult(lastPing, lastDownload, finalMbps);
+                if (binding == null) return;
+                binding.uploadText.setText(String.format(Locale.getDefault(), "%.1f", finalMbps));
                 binding.btnStart.setEnabled(true);
                 binding.btnStart.setText("START TEST");
             }
 
             @Override
             public void onError(String message) {
+                if (binding == null) return;
                 binding.btnStart.setEnabled(true);
                 binding.btnStart.setText("START TEST");
             }
@@ -79,6 +83,7 @@ public class SpeedTestFragment extends Fragment {
     }
 
     private void updateSpeedDisplay(double mbps) {
+        if (binding == null) return;
         binding.mainSpeedValue.setText(String.format(Locale.getDefault(), "%.1f", mbps));
     }
 
@@ -97,6 +102,9 @@ public class SpeedTestFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (speedTestManager != null) {
+            speedTestManager.cancel();
+        }
         binding = null;
     }
 }
