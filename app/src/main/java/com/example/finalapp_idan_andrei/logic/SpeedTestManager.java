@@ -19,12 +19,14 @@ import java.util.concurrent.Executors;
 public class SpeedTestManager {
 
     private static final String PING_URL = "https://speed.cloudflare.com/__down?bytes=0";
-    private static final String DOWNLOAD_URL = "https://speed.cloudflare.com/__down?bytes=50000000"; // 50MB
+    private static final String DOWNLOAD_URL_BASE = "https://speed.cloudflare.com/__down?bytes=";
     private static final String UPLOAD_URL = "https://speed.cloudflare.com/__up";
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private volatile boolean cancelled = false;
+
+    private AppSettings settings;
 
     /**
      * Stops delivering further callbacks and unblocks the background loops as soon as possible.
@@ -44,7 +46,8 @@ public class SpeedTestManager {
         void onError(String message);
     }
 
-    public void startTest(SpeedTestListener listener) {
+    public void startTest(AppSettings settings, SpeedTestListener listener) {
+        this.settings = settings != null ? settings : new AppSettings();
         executorService.execute(() -> {
             try {
                 // 1. Ping & Jitter
@@ -66,8 +69,9 @@ public class SpeedTestManager {
 
     private void runPingAndJitter(SpeedTestListener listener) {
         List<Long> pings = new ArrayList<>();
+        int iterations = settings.getPingIterations();
         try {
-            for (int i = 0; i < 5 && !cancelled; i++) {
+            for (int i = 0; i < iterations && !cancelled; i++) {
                 long start = System.currentTimeMillis();
                 HttpURLConnection connection = (HttpURLConnection) new URL(PING_URL).openConnection();
                 connection.setRequestMethod("GET");
@@ -101,7 +105,8 @@ public class SpeedTestManager {
 
     private void runDownload(SpeedTestListener listener) {
         try {
-            URL url = new URL(DOWNLOAD_URL);
+            String downloadUrl = DOWNLOAD_URL_BASE + settings.getDownloadSizeBytes();
+            URL url = new URL(downloadUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.connect();
 
@@ -193,7 +198,14 @@ public class SpeedTestManager {
     private double calculateMbps(long bytes, long durationMs) {
         if (durationMs <= 0) return 0;
         double seconds = durationMs / 1000.0;
-        return (bytes * 8.0) / (seconds * 1_000_000.0);
+        double bits = bytes * 8.0;
+        double mbps = bits / (seconds * 1_000_000.0);
+
+        // Convert to MB/s if specified in settings
+        if (settings.isUseMegabytes()) {
+            return mbps / 8.0; // Megabytes per second
+        }
+        return mbps; // Megabits per second
     }
 
     private void postError(SpeedTestListener listener, String message) {

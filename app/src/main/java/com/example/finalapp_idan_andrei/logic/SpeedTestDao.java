@@ -2,6 +2,7 @@ package com.example.finalapp_idan_andrei.logic;
 
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import java.util.List;
@@ -20,4 +21,11 @@ public interface SpeedTestDao {
 
     @Query("DELETE FROM speed_test_history")
     void deleteAll();
+
+    // Settings Queries
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void saveSettings(AppSettings settings);
+
+    @Query("SELECT * FROM app_settings WHERE id = 1")
+    AppSettings getSettings();
 }
