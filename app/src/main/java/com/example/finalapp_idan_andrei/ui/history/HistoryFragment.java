@@ -20,10 +20,16 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * The History tab: shows every past speed test as a list, backed by Room.
+ * Re-queries the database every time the tab becomes visible (onResume), so a
+ * test just run on the Speed Test tab shows up immediately here.
+ */
 public class HistoryFragment extends Fragment {
 
     private FragmentHistoryBinding binding;
     private HistoryAdapter adapter;
+    // Room queries are blocking disk I/O, so they always run here, off the main thread.
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -46,11 +52,14 @@ public class HistoryFragment extends Fragment {
         loadHistory();
     }
 
+    /** Reads all saved results on a background thread, then updates the list/empty state on the main thread. */
     private void loadHistory() {
         executorService.execute(() -> {
             List<SpeedTestResult> results =
                     AppDatabase.getInstance(requireContext()).speedTestDao().getAllResults();
             mainHandler.post(() -> {
+                // The view may have been destroyed while this background query was running
+                // (e.g. user switched tabs again quickly) - bail out instead of crashing.
                 if (binding == null) return;
                 adapter.submitList(results);
                 boolean isEmpty = results.isEmpty();
@@ -69,6 +78,7 @@ public class HistoryFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        // Stop any in-flight/queued DB query now that this Fragment instance is gone for good.
         executorService.shutdownNow();
     }
 }

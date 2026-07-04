@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- The 3 bottom-nav tabs. Each item's id intentionally matches the id of the
+     destination it should open in nav_graph.xml - that's how
+     NavigationUI.setupWithNavController() (in MainActivity) wires taps to navigation. -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item

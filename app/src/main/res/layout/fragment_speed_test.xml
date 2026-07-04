@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Speed Test tab (start destination): 3 stat cards (ping/download/upload),
+     a big live speed readout, and the button that triggers SpeedTestManager
+     via SpeedTestFragment.java. -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -6,7 +9,8 @@
     android:background="@color/ambient_dark_blue"
     android:padding="16dp">
 
-    <!-- Header Stats -->
+    <!-- Header Stats: filled in as each phase of the test finishes (ping first, then
+         download, then upload) via SpeedTestFragment's SpeedTestListener callbacks. -->
     <LinearLayout
         android:id="@+id/statsContainer"
         android:layout_width="match_parent"
@@ -91,7 +95,9 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Main Gauge Area -->
+    <!-- Main Gauge Area: mainSpeedValue is updated live during both the download and
+         upload phases (SpeedTestFragment.updateSpeedDisplay), so it's the "live ticking
+         number" effect during the test; unitLabel shows Mbps or MB/s per the user's setting. -->
     <FrameLayout
         android:id="@+id/gaugeContainer"
         android:layout_width="280dp"
@@ -101,6 +107,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/statsContainer">
 
+        <!-- Currently unused/always invisible; kept as a placeholder for a future
+             visual progress ring/bar around the gauge. -->
         <ProgressBar
             android:id="@+id/speedProgress"
             style="?android:attr/progressBarStyleHorizontal"
@@ -138,7 +146,8 @@
         </LinearLayout>
     </FrameLayout>
 
-    <!-- Start Button -->
+    <!-- Start Button: disabled and re-labeled "TESTING..." for the duration of the test,
+         see SpeedTestFragment.startSpeedTest(). -->
     <Button
         android:id="@+id/btnStart"
         android:layout_width="200dp"

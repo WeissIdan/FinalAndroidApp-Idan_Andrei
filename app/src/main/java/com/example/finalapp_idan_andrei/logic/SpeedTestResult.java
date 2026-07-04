@@ -4,19 +4,22 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 /**
- * Entity class representing a single speed test record in the database.
+ * A single completed speed test run, persisted in the "speed_test_history" table.
+ * Room turns this into one row per instance saved via {@link SpeedTestDao#insert}.
+ * The HistoryFragment reads these back to build its list.
  */
 @Entity(tableName = "speed_test_history")
 public class SpeedTestResult {
+    // autoGenerate = true: Room assigns this automatically on insert, we never set it ourselves.
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    private long timestamp;
-    private double downloadMbps;
-    private double uploadMbps;
-    private long pingMs;
+    private long timestamp;      // System.currentTimeMillis() when the test finished
+    private double downloadMbps; // final download result of the test
+    private double uploadMbps;   // final upload result of the test
+    private long pingMs;         // average ping/latency in milliseconds
 
-    // Constructors
+    // Room needs a no-arg constructor to build instances when reading rows back from the DB.
     public SpeedTestResult() {}
 
     // Getters and Setters

@@ -8,8 +8,12 @@ import androidx.room.Query;
 import java.util.List;
 
 /**
- * Data Access Object (DAO) for speed test results.
- * Defines the database operations.
+ * Data Access Object (DAO) for the app's two tables. Room generates the actual
+ * SQL-executing implementation of this interface at compile time - these method
+ * bodies don't exist anywhere in source, Room writes them based on the annotations.
+ * Every method here does real disk I/O, so all of them must be called from a
+ * background thread (see the calling Fragments, which always wrap DAO calls in
+ * a Thread/ExecutorService).
  */
 @Dao
 public interface SpeedTestDao {
@@ -23,6 +27,8 @@ public interface SpeedTestDao {
     void deleteAll();
 
     // Settings Queries
+    // REPLACE: since AppSettings.id is always 1, this always overwrites the single
+    // settings row instead of failing on a primary-key conflict or inserting a duplicate.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void saveSettings(AppSettings settings);
 

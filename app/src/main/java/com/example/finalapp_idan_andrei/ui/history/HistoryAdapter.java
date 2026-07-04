@@ -15,12 +15,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Feeds the History tab's RecyclerView: one row (item_history_result.xml) per
+ * saved {@link SpeedTestResult}, newest first (the DAO query already orders them).
+ */
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
 
     private final List<SpeedTestResult> results = new ArrayList<>();
     private final SimpleDateFormat dateFormat =
             new SimpleDateFormat("MMM d, HH:mm", Locale.getDefault());
 
+    /** Replaces the whole displayed list and refreshes the RecyclerView. */
     public void submitList(List<SpeedTestResult> newResults) {
         results.clear();
         results.addAll(newResults);
@@ -30,6 +35,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Inflate one row using its generated ViewBinding instead of a raw layout id.
         ItemHistoryResultBinding binding = ItemHistoryResultBinding.inflate(
                 LayoutInflater.from(parent.getContext()), parent, false);
         return new ViewHolder(binding);
@@ -51,6 +57,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         return results.size();
     }
 
+    /** Holds the ViewBinding for one inflated row so onBindViewHolder can reuse it. */
     static class ViewHolder extends RecyclerView.ViewHolder {
         final ItemHistoryResultBinding binding;
 
