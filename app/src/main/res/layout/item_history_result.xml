@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- One row in the History list: a timestamp above 3 stat columns (ping/download/upload)
+     for a single saved SpeedTestResult. Inflated and filled in by HistoryAdapter. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"

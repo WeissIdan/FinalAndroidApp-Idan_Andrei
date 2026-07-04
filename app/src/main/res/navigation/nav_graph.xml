@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- The app's Navigation graph: the 3 fragments that make up the app and which one
+     opens first. android:id on each <fragment> matches an item id in bottom_nav_menu.xml,
+     which is how NavigationUI knows which tab should activate which destination. -->
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"

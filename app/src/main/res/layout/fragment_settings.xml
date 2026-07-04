@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Settings tab: units switch, ping/download-size sliders, and a clear-history button.
+     Every control here is read from and written straight back to the single AppSettings
+     row in Room by SettingsFragment.java - there's no separate "Save" step. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -39,6 +42,10 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="12dp"/>
 
+            <!-- saveEnabled="false": Room is the single source of truth for this value.
+                 Android's own view-state restore (used when returning to this bottom-nav
+                 tab) would otherwise re-check this switch with a stale value before
+                 loadSettings() finishes reading from Room, and previously caused a crash. -->
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switchUnits"
                 android:layout_width="match_parent"
@@ -83,6 +90,7 @@
                 android:text="Ping Iterations: 5"
                 android:textColor="@color/white"/>
 
+            <!-- max=15 with a +5 offset in code means this allows 5-20 ping iterations. -->
             <SeekBar
                 android:id="@+id/seekPingIterations"
                 android:layout_width="match_parent"
@@ -105,6 +113,7 @@
                 android:text="Download Size: 50 MB"
                 android:textColor="@color/white"/>
 
+            <!-- Only 3 discrete steps (0/1/2), mapped in code to 10MB/50MB/100MB. -->
             <SeekBar
                 android:id="@+id/seekDownloadSize"
                 android:layout_width="match_parent"

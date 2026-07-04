@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- History tab: a scrolling list of past test results (item_history_result.xml per row,
+     via HistoryAdapter), or the empty-state message when there's nothing saved yet.
+     HistoryFragment toggles which of the two is visible based on the Room query result. -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"

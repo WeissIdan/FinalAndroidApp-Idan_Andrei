@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- MainActivity's only layout: a NavHostFragment (where the 3 tab Fragments get
+     swapped in/out) stacked above a BottomNavigationView. MainActivity.java connects
+     the two by handing the NavController to NavigationUI.setupWithNavController(). -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,6 +10,8 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!-- Tab bar; its items (bottom_nav_menu.xml) share ids with the destinations
+         in nav_graph.xml so NavigationUI can match tab taps to navigation targets. -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"
         android:layout_width="0dp"
@@ -17,6 +22,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Hosts whichever Fragment the Navigation Component currently has active
+         (SpeedTestFragment, HistoryFragment or SettingsFragment), per nav_graph.xml. -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"

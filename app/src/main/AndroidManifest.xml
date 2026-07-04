@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Needed to reach the Cloudflare speed-test endpoints and to check connectivity. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -14,6 +15,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FinalApp_Idan_Andrei">
+        <!-- The app's only Activity. Everything else (Speed Test / History / Settings)
+             is a Fragment hosted inside it via the Navigation graph - see nav_graph.xml. -->
         <activity
             android:name=".MainActivity"
             android:exported="true">

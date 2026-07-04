@@ -14,7 +14,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Manager class to handle speed test logic (Ping, Download, Upload).
+ * Runs an actual network speed test against Cloudflare's public speed-test endpoints:
+ * ping/jitter, then a download, then an upload. All the network work happens on a
+ * single background thread; results and progress are delivered back to the caller's
+ * {@link SpeedTestListener} on the main thread via {@link #mainHandler}, so the
+ * listener (a Fragment) can update views directly without extra thread-hopping.
  */
 public class SpeedTestManager {
 
@@ -22,8 +26,12 @@ public class SpeedTestManager {
     private static final String DOWNLOAD_URL_BASE = "https://speed.cloudflare.com/__down?bytes=";
     private static final String UPLOAD_URL = "https://speed.cloudflare.com/__up";
 
+    // All three test phases run one after another on this single background thread.
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    // Set by cancel(); checked throughout the background loops so they stop (and stop
+    // posting callbacks) as soon as possible once the caller no longer needs results
+    // (e.g. the Fragment view was destroyed).
     private volatile boolean cancelled = false;
 
     private AppSettings settings;
@@ -37,6 +45,7 @@ public class SpeedTestManager {
         executorService.shutdownNow();
     }
 
+    /** Callback interface the test reports progress and results through, on the main thread. */
     public interface SpeedTestListener {
         void onPingResult(long pingMs, double jitterMs);
         void onDownloadProgress(double mbps);
@@ -46,6 +55,7 @@ public class SpeedTestManager {
         void onError(String message);
     }
 
+    /** Kicks off ping -> download -> upload, in that order, on the background executor. */
     public void startTest(AppSettings settings, SpeedTestListener listener) {
         this.settings = settings != null ? settings : new AppSettings();
         executorService.execute(() -> {
@@ -67,6 +77,11 @@ public class SpeedTestManager {
         });
     }
 
+    /**
+     * Measures latency by timing full HTTP round-trips to a zero-byte endpoint
+     * (settings.getPingIterations() times), then reports the average ping and
+     * the average jitter (variation between consecutive pings).
+     */
     private void runPingAndJitter(SpeedTestListener listener) {
         List<Long> pings = new ArrayList<>();
         int iterations = settings.getPingIterations();
@@ -88,6 +103,7 @@ public class SpeedTestManager {
             for (long p : pings) avgPing += p;
             avgPing /= pings.size();
 
+            // Jitter = average absolute change between one ping and the next.
             double totalJitter = 0;
             for (int i = 0; i < pings.size() - 1; i++) {
                 totalJitter += Math.abs(pings.get(i + 1) - pings.get(i));
@@ -103,6 +119,11 @@ public class SpeedTestManager {
         }
     }
 
+    /**
+     * Downloads settings.getDownloadSizeBytes() worth of data and reports live throughput.
+     * Reading an InputStream is naturally paced by real network speed, so the 250ms
+     * progress sampling below reflects genuine live throughput.
+     */
     private void runDownload(SpeedTestListener listener) {
         try {
             String downloadUrl = DOWNLOAD_URL_BASE + settings.getDownloadSizeBytes();
@@ -139,6 +160,9 @@ public class SpeedTestManager {
         }
     }
 
+    /**
+     * Uploads ~10MB of random bytes and reports live throughput.
+     */
     private void runUpload(SpeedTestListener listener) {
         try {
             URL url = new URL(UPLOAD_URL);
@@ -157,7 +181,7 @@ public class SpeedTestManager {
 
             long startTime = System.currentTimeMillis();
             OutputStream output = connection.getOutputStream();
-            
+
             int chunkSize = 8192;
             long totalBytesWritten = 0;
             long lastUpdate = startTime;
@@ -195,6 +219,7 @@ public class SpeedTestManager {
         }
     }
 
+    /** Converts bytes transferred over durationMs into Mbps, or MB/s if the user prefers that unit. */
     private double calculateMbps(long bytes, long durationMs) {
         if (durationMs <= 0) return 0;
         double seconds = durationMs / 1000.0;
@@ -208,6 +233,7 @@ public class SpeedTestManager {
         return mbps; // Megabits per second
     }
 
+    /** Reports a failure, unless the test was already cancelled (nothing is listening anymore). */
     private void postError(SpeedTestListener listener, String message) {
         if (cancelled) return;
         mainHandler.post(() -> listener.onError(message));
