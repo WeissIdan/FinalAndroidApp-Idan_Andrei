@@ -43,10 +43,11 @@
                 android:id="@+id/switchUnits"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:saveEnabled="false"
                 android:text="Use MegaBytes (MB/s)"
                 android:textColor="@color/white"
-                app:thumbTint="@color/accent_blue"
-                app:trackTint="@color/text_secondary"/>
+                app:thumbTint="@color/switch_thumb_tint"
+                app:trackTint="@color/switch_track_tint"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -88,6 +89,7 @@
                 android:layout_height="wrap_content"
                 android:max="15"
                 android:progress="0"
+                android:saveEnabled="false"
                 android:layout_marginTop="8dp"/>
 
             <View
@@ -109,6 +111,7 @@
                 android:layout_height="wrap_content"
                 android:max="2"
                 android:progress="1"
+                android:saveEnabled="false"
                 android:layout_marginTop="8dp"/>
         </LinearLayout>
 

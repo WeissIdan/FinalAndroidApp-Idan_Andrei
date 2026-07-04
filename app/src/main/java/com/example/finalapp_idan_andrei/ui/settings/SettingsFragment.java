@@ -20,7 +20,9 @@ import com.example.finalapp_idan_andrei.logic.AppSettings;
 public class SettingsFragment extends Fragment {
 
     private FragmentSettingsBinding binding;
-    private AppSettings currentSettings;
+    // Never null: real values are loaded from Room in loadSettings() and overwrite this,
+    // but listeners can fire before that finishes (e.g. bottom-nav view-state restore).
+    private AppSettings currentSettings = new AppSettings();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Nullable
